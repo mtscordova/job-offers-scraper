@@ -6,25 +6,26 @@ from settings import settings
 ACTOR_ID = "curious_coder/linkedin-jobs-scraper"
 RESULTS_PER_KEYWORD = 50
 
-# LinkedIn URL params: past month + Barcelona, and past month + remote
+# geoId=90009496 → Barcelona, Catalonia, Spain
+# geoId=105646813 → Spain (used for remote-Spain searches)
+# f_WT=2 → remote  |  f_TPR=r2592000 → last 30 days
 def _build_urls() -> list[str]:
     urls = []
     for kw in settings.keywords:
-        # Barcelona presencial
         urls.append(
-            "https://www.linkedin.com/jobs/search/?"
+            "https://www.linkedin.com/jobs/search?"
             + urlencode({
                 "keywords": kw,
                 "location": "Barcelona, Catalonia, Spain",
-                "f_TPR": "r2592000",  # last 30 days
+                "geoId": "90009496",
+                "f_TPR": "r2592000",
             })
         )
-        # Remote worldwide
         urls.append(
-            "https://www.linkedin.com/jobs/search/?"
+            "https://www.linkedin.com/jobs/search?"
             + urlencode({
                 "keywords": kw,
-                "f_WT": "2",          # remote
+                "f_WT": "2",
                 "f_TPR": "r2592000",
             })
         )
@@ -45,18 +46,19 @@ def scrape() -> list[JobOffer]:
     jobs = []
     seen_urls = set()
 
-    for item in client.dataset(run["defaultDatasetId"]).iterate_items():
-        url = item.get("jobUrl") or item.get("link") or item.get("url") or ""
+    for item in client.dataset(run.default_dataset_id).iterate_items():
+        url = item.get("link") or item.get("jobUrl") or item.get("url") or ""
         if not url or url in seen_urls:
             continue
         seen_urls.add(url)
 
-        title = item.get("title") or item.get("jobTitle") or ""
-        company = item.get("companyName") or item.get("company") or ""
-        location = item.get("location") or item.get("jobLocation") or ""
-        posted_at = item.get("postedAt") or item.get("publishedAt") or item.get("postingDate") or None
+        title = item.get("title") or ""
+        company = item.get("companyName") or ""
+        location = item.get("location") or ""
+        posted_at = item.get("postedAt") or None
         remote = (
-            item.get("workType", "").lower() == "remote"
+            bool(item.get("workRemoteAllowed"))
+            or "Remote" in item.get("workplaceTypes", [])
             or "remote" in location.lower()
         )
 
