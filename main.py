@@ -1,8 +1,8 @@
 import click
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 from tabulate import tabulate
 import db
-from config import is_spain_or_remote, matches_keywords, MAX_AGE_DAYS
+from settings import settings
 from scrapers import jobfluent, relocate, landing_jobs, greenhouse, lever, spainjobs, apify_linkedin
 
 SOURCES = {
@@ -18,7 +18,7 @@ SOURCES = {
 
 def _is_too_old(posted_at: str | None, max_days: int) -> bool:
     if not posted_at:
-        return False  # sin fecha, no descartamos
+        return False
     try:
         dt = datetime.fromisoformat(posted_at.replace("Z", "+00:00"))
         if dt.tzinfo is None:
@@ -35,7 +35,7 @@ def cli():
 
 @cli.command()
 @click.option("--source", type=click.Choice(list(SOURCES)), default=None, help="Scrape only this source.")
-@click.option("--days", default=MAX_AGE_DAYS, show_default=True, help="Descartar ofertas con más de N días.")
+@click.option("--days", default=settings.max_age_days, show_default=True, help="Descartar ofertas con más de N días.")
 def scrape(source, days):
     """Scrape job offers and save new ones to the database."""
     db.init_db()
@@ -54,10 +54,10 @@ def scrape(source, days):
 
         new, dupes, skipped = 0, 0, 0
         for job in jobs:
-            if not matches_keywords(job.title):
+            if not settings.matches_keywords(job.title):
                 skipped += 1
                 continue
-            if not is_spain_or_remote(job.location or "", job.remote):
+            if not settings.is_relevant_location(job.location or "", job.remote):
                 skipped += 1
                 continue
             if _is_too_old(job.posted_at, days):

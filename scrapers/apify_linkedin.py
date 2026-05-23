@@ -1,8 +1,7 @@
-import os
 from urllib.parse import urlencode
 from apify_client import ApifyClient
 from .base import JobOffer
-from config import KEYWORDS
+from settings import settings
 
 ACTOR_ID = "curious_coder/linkedin-jobs-scraper"
 RESULTS_PER_KEYWORD = 50
@@ -10,7 +9,7 @@ RESULTS_PER_KEYWORD = 50
 # LinkedIn URL params: past month + Barcelona, and past month + remote
 def _build_urls() -> list[str]:
     urls = []
-    for kw in KEYWORDS:
+    for kw in settings.keywords:
         # Barcelona presencial
         urls.append(
             "https://www.linkedin.com/jobs/search/?"
@@ -33,9 +32,9 @@ def _build_urls() -> list[str]:
 
 
 def scrape() -> list[JobOffer]:
-    token = os.environ.get("APIFY_TOKEN")
+    token = settings.apify_token
     if not token:
-        raise RuntimeError("APIFY_TOKEN env variable not set")
+        raise RuntimeError("APIFY_TOKEN not set in .env")
 
     client = ApifyClient(token)
     run = client.actor(ACTOR_ID).call(run_input={

@@ -1,48 +1,35 @@
 import time
 import requests
 from .base import JobOffer
-from config import GREENHOUSE_COMPANIES, KEYWORDS, HEADERS, REQUEST_DELAY, REQUEST_TIMEOUT
+from settings import settings
 
 API_URL = "https://boards-api.greenhouse.io/v1/boards/{company}/jobs"
-
-
-def _matches_keywords(title: str) -> bool:
-    title_lower = title.lower()
-    return any(kw.lower() in title_lower for kw in KEYWORDS)
 
 
 def scrape() -> list[JobOffer]:
     jobs = []
     session = requests.Session()
-    session.headers.update({**HEADERS, "Accept": "application/json"})
+    session.headers.update({**settings.headers, "Accept": "application/json"})
 
-    for company in GREENHOUSE_COMPANIES:
-        resp = session.get(
-            API_URL.format(company=company),
-            timeout=REQUEST_TIMEOUT,
-        )
+    for company in settings.greenhouse_companies:
+        resp = session.get(API_URL.format(company=company), timeout=settings.request_timeout)
         if resp.status_code != 200:
-            time.sleep(REQUEST_DELAY)
+            time.sleep(settings.request_delay)
             continue
 
-        data = resp.json()
-        for item in data.get("jobs", []):
+        for item in resp.json().get("jobs", []):
             title = item.get("title", "")
-            if not _matches_keywords(title):
+            if not settings.matches_keywords(title):
                 continue
-
-            location = item.get("location", {}).get("name", "")
-            url = item.get("absolute_url", "")
-
             jobs.append(JobOffer(
                 title=title,
                 company=company.replace("-", " ").title(),
-                location=location,
-                url=url,
+                location=item.get("location", {}).get("name", ""),
+                url=item.get("absolute_url", ""),
                 source="greenhouse",
                 posted_at=item.get("updated_at"),
             ))
 
-        time.sleep(REQUEST_DELAY)
+        time.sleep(settings.request_delay)
 
     return jobs

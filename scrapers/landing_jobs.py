@@ -1,7 +1,7 @@
 import time
 import requests
 from .base import JobOffer
-from config import KEYWORDS, HEADERS, REQUEST_DELAY, REQUEST_TIMEOUT, MAX_PAGES
+from settings import settings
 
 API_URL = "https://landing.jobs/api/v1/jobs"
 PAGE_SIZE = 20
@@ -11,14 +11,14 @@ def scrape() -> list[JobOffer]:
     jobs = []
     seen_urls = set()
     session = requests.Session()
-    session.headers.update({**HEADERS, "Accept": "application/json"})
+    session.headers.update({**settings.headers, "Accept": "application/json"})
 
-    for keyword in KEYWORDS:
-        for page in range(1, MAX_PAGES + 1):
+    for keyword in settings.keywords:
+        for page in range(1, settings.max_pages + 1):
             resp = session.get(
                 API_URL,
                 params={"search": keyword, "page": page, "remote": "true"},
-                timeout=REQUEST_TIMEOUT,
+                timeout=settings.request_timeout,
             )
             if resp.status_code != 200:
                 break
@@ -38,7 +38,6 @@ def scrape() -> list[JobOffer]:
                     f"{loc.get('city', '')} {loc.get('country_code', '')}".strip()
                     for loc in locations
                 )
-
                 company = (
                     item.get("company", {}).get("name", "")
                     if isinstance(item.get("company"), dict)
@@ -57,7 +56,6 @@ def scrape() -> list[JobOffer]:
 
             if len(data) < PAGE_SIZE:
                 break
-
-            time.sleep(REQUEST_DELAY)
+            time.sleep(settings.request_delay)
 
     return jobs

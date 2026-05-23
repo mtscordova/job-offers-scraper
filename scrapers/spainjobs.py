@@ -4,7 +4,7 @@ import requests
 from bs4 import BeautifulSoup
 from datetime import datetime, timedelta, timezone
 from .base import JobOffer
-from config import HEADERS, REQUEST_DELAY, REQUEST_TIMEOUT, MAX_PAGES
+from settings import settings
 
 BASE_URL = "https://spainjobs.io/jobs/c/data"
 SITE = "https://spainjobs.io"
@@ -55,11 +55,11 @@ def scrape() -> list[JobOffer]:
     jobs = []
     seen_urls = set()
     session = requests.Session()
-    session.headers.update(HEADERS)
+    session.headers.update(settings.headers)
 
-    for page in range(1, MAX_PAGES + 1):
+    for page in range(1, settings.max_pages + 1):
         params = {"page": page} if page > 1 else {}
-        resp = session.get(BASE_URL, params=params, timeout=REQUEST_TIMEOUT)
+        resp = session.get(BASE_URL, params=params, timeout=settings.request_timeout)
         if resp.status_code != 200:
             break
 
@@ -77,6 +77,6 @@ def scrape() -> list[JobOffer]:
         if len(articles) < 10:
             break
 
-        time.sleep(REQUEST_DELAY)
+        time.sleep(settings.request_delay)
 
     return jobs
