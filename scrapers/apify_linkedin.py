@@ -6,8 +6,7 @@ from settings import settings
 ACTOR_ID = "curious_coder/linkedin-jobs-scraper"
 RESULTS_PER_KEYWORD = 50
 
-# geoId=90009496 → Barcelona, Catalonia, Spain
-# geoId=105646813 → Spain (used for remote-Spain searches)
+# geoId=105646813 → Spain | f_PP=105088894 → Barcelona pinpoint (from LinkedIn URL)
 # f_WT=2 → remote  |  f_TPR=r2592000 → last 30 days
 def _build_urls() -> list[str]:
     urls = []
@@ -16,8 +15,9 @@ def _build_urls() -> list[str]:
             "https://www.linkedin.com/jobs/search?"
             + urlencode({
                 "keywords": kw,
-                "location": "Barcelona, Catalonia, Spain",
-                "geoId": "90009496",
+                "location": "España",
+                "geoId": "105646813",
+                "f_PP": "105088894",
                 "f_TPR": "r2592000",
             })
         )
@@ -56,10 +56,13 @@ def scrape() -> list[JobOffer]:
         company = item.get("companyName") or ""
         location = item.get("location") or ""
         posted_at = item.get("postedAt") or None
+        workplace = item.get("workplaceTypes") or []
+        input_url = item.get("inputUrl") or ""
         remote = (
             bool(item.get("workRemoteAllowed"))
-            or "Remote" in item.get("workplaceTypes", [])
+            or "Remote" in workplace
             or "remote" in location.lower()
+            or ("f_WT=2" in input_url and "On-site" not in workplace)
         )
 
         jobs.append(JobOffer(

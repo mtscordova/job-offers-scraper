@@ -27,7 +27,7 @@ class Settings(BaseSettings):
     )
 
     # Location filter
-    location_terms: list[str] = ["barcelona", "bcn", "remote", "worldwide", "anywhere"]
+    location_terms: list[str] = ["barcelona", "bcn", "spain", "españa", "remote", "worldwide", "anywhere"]
 
     # Company boards
     greenhouse_companies: list[str] = [
