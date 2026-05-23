@@ -3,11 +3,12 @@ from datetime import datetime, timezone, timedelta
 from tabulate import tabulate
 import db
 from config import is_spain_or_remote, matches_keywords, MAX_AGE_DAYS
-from scrapers import jobfluent, relocate, landing_jobs, greenhouse, lever, spainjobs
+from scrapers import jobfluent, relocate, landing_jobs, greenhouse, lever, spainjobs, apify_linkedin
 
 SOURCES = {
     "jobfluent": jobfluent.scrape,
     "spainjobs": spainjobs.scrape,
+    "linkedin": apify_linkedin.scrape,
     "relocate": relocate.scrape,
     "landing_jobs": landing_jobs.scrape,
     "greenhouse": greenhouse.scrape,
