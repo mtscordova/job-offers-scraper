@@ -37,6 +37,11 @@ SPAIN_TERMS = [
 ]
 
 
+def matches_keywords(title: str) -> bool:
+    title_lower = title.lower()
+    return any(kw in title_lower for kw in KEYWORDS)
+
+
 def is_spain_or_remote(location: str, remote: bool) -> bool:
     if remote:
         return True

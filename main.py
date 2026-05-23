@@ -1,7 +1,7 @@
 import click
 from tabulate import tabulate
 import db
-from config import is_spain_or_remote
+from config import is_spain_or_remote, matches_keywords
 from scrapers import jobfluent, relocate, landing_jobs, greenhouse, lever
 
 SOURCES = {
@@ -35,7 +35,7 @@ def scrape(source):
 
         new, dupes, skipped = 0, 0, 0
         for job in jobs:
-            if not is_spain_or_remote(job.location or "", job.remote):
+            if not matches_keywords(job.title) or not is_spain_or_remote(job.location or "", job.remote):
                 skipped += 1
                 continue
             if db.save_job(job.to_dict()):
