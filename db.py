@@ -69,6 +69,23 @@ def fetch_jobs(source: str = None, limit: int = 50, days: int = None) -> list:
         return [dict(r) for r in rows]
 
 
+def purge_old_jobs(days: int) -> int:
+    """Delete jobs older than N days. Returns number of rows deleted."""
+    with get_conn() as conn:
+        cur = conn.execute(
+            """
+            DELETE FROM jobs WHERE (
+                (posted_at IS NOT NULL AND posted_at < datetime('now', ?))
+                OR
+                (posted_at IS NULL AND scraped_at < datetime('now', ?))
+            )
+            """,
+            (f"-{days} days", f"-{days} days"),
+        )
+        conn.commit()
+        return cur.rowcount
+
+
 def fetch_stats() -> list:
     with get_conn() as conn:
         rows = conn.execute(

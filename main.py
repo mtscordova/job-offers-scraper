@@ -37,6 +37,9 @@ def cli():
 def scrape(source, days):
     """Scrape job offers and save new ones to the database."""
     db.init_db()
+    removed = db.purge_old_jobs(days)
+    if removed:
+        click.echo(f"Removed {removed} expired jobs (older than {days} days).")
     targets = {source: SOURCES[source]} if source else SOURCES
 
     for name, scrape_fn in targets.items():

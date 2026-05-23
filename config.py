@@ -66,7 +66,7 @@ def is_spain_or_remote(location: str, remote: bool) -> bool:
     return any(term in loc_lower for term in SPAIN_TERMS)
 
 
-MAX_AGE_DAYS = 30  # descartar ofertas con posted_at más antiguo que esto
+MAX_AGE_DAYS = 21  # descartar ofertas con posted_at más antiguo que esto
 
 REQUEST_DELAY = 1.0  # seconds between requests
 REQUEST_TIMEOUT = 15
