@@ -46,18 +46,26 @@ def save_job(job: dict) -> bool:
             return False
 
 
-def fetch_jobs(source: str = None, limit: int = 50) -> list:
+def fetch_jobs(source: str = None, limit: int = 50, days: int = None) -> list:
     with get_conn() as conn:
+        conditions = []
+        params = []
+
         if source:
-            rows = conn.execute(
-                "SELECT * FROM jobs WHERE source = ? ORDER BY scraped_at DESC LIMIT ?",
-                (source, limit),
-            ).fetchall()
-        else:
-            rows = conn.execute(
-                "SELECT * FROM jobs ORDER BY scraped_at DESC LIMIT ?",
-                (limit,),
-            ).fetchall()
+            conditions.append("source = ?")
+            params.append(source)
+
+        if days:
+            conditions.append("scraped_at >= datetime('now', ?)")
+            params.append(f"-{days} days")
+
+        where = f"WHERE {' AND '.join(conditions)}" if conditions else ""
+        params.append(limit)
+
+        rows = conn.execute(
+            f"SELECT * FROM jobs {where} ORDER BY COALESCE(posted_at, scraped_at) DESC LIMIT ?",
+            params,
+        ).fetchall()
         return [dict(r) for r in rows]
 
 

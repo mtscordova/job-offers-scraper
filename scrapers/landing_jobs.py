@@ -17,7 +17,7 @@ def scrape() -> list[JobOffer]:
         for page in range(1, MAX_PAGES + 1):
             resp = session.get(
                 API_URL,
-                params={"search": keyword, "page": page},
+                params={"search": keyword, "page": page, "remote": "true"},
                 timeout=REQUEST_TIMEOUT,
             )
             if resp.status_code != 200:

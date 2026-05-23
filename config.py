@@ -1,23 +1,34 @@
 KEYWORDS = ["data engineer", "data architect"]
 
 GREENHOUSE_COMPANIES = [
+    # Remote-friendly / global
     "airbnb",
     "stripe",
     "twilio",
     "dbtlabs",
     "fivetran",
     "hashicorp",
+    "gitlab",
+    "elastic",
+    "grafana",
+    "mattermost",
+    # EU-based or EU-hiring
+    "typeform",
+    "king",
+    "glovo",
+    "cabify",
+    "factorial",
+    "travelperk",
+    "holaluz",
+    "flywire",
+    "paack",
+    "clarity-ai",
+    # US but remote-global
     "zendesk",
     "hubspot",
-    "intercom",
-    "squarespace",
     "brex",
-    "gusto",
     "plaid",
     "rippling",
-    "lattice",
-    "benchling",
-    "figma",
     "notion",
 ]
 
@@ -29,6 +40,10 @@ LEVER_COMPANIES = [
     "mixpanel",
     "reddit",
     "airtable",
+    "remote",
+    "hotjar",
+    "workable",
+    "personio",
 ]
 
 SPAIN_TERMS = [
@@ -50,6 +65,8 @@ def is_spain_or_remote(location: str, remote: bool) -> bool:
         return True  # sin ubicación, no descartamos
     return any(term in loc_lower for term in SPAIN_TERMS)
 
+
+MAX_AGE_DAYS = 30  # descartar ofertas con posted_at más antiguo que esto
 
 REQUEST_DELAY = 1.0  # seconds between requests
 REQUEST_TIMEOUT = 15
