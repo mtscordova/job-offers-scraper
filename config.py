@@ -31,6 +31,23 @@ LEVER_COMPANIES = [
     "airtable",
 ]
 
+SPAIN_TERMS = [
+    "spain", "españa", "madrid", "barcelona", "valencia",
+    "bilbao", "sevilla", "malaga", "málaga", "zaragoza",
+    "alicante", "granada", "murcia", "palma", "remote",
+    "worldwide", "anywhere",
+]
+
+
+def is_spain_or_remote(location: str, remote: bool) -> bool:
+    if remote:
+        return True
+    loc_lower = location.lower()
+    if not loc_lower:
+        return True  # sin ubicación, no descartamos
+    return any(term in loc_lower for term in SPAIN_TERMS)
+
+
 REQUEST_DELAY = 1.0  # seconds between requests
 REQUEST_TIMEOUT = 15
 MAX_PAGES = 5

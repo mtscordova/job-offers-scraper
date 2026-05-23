@@ -1,6 +1,7 @@
 import click
 from tabulate import tabulate
 import db
+from config import is_spain_or_remote
 from scrapers import jobfluent, relocate, landing_jobs, greenhouse, lever
 
 SOURCES = {
@@ -32,14 +33,17 @@ def scrape(source):
             click.echo(f"  ERROR: {e}")
             continue
 
-        new, dupes = 0, 0
+        new, dupes, skipped = 0, 0, 0
         for job in jobs:
+            if not is_spain_or_remote(job.location or "", job.remote):
+                skipped += 1
+                continue
             if db.save_job(job.to_dict()):
                 new += 1
             else:
                 dupes += 1
 
-        click.echo(f"  {new} new  |  {dupes} already in DB  (total fetched: {len(jobs)})")
+        click.echo(f"  {new} new  |  {dupes} already in DB  |  {skipped} filtered out  (fetched: {len(jobs)})")
 
 
 @cli.command("list")
