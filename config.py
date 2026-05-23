@@ -32,10 +32,8 @@ LEVER_COMPANIES = [
 ]
 
 SPAIN_TERMS = [
-    "spain", "españa", "madrid", "barcelona", "valencia",
-    "bilbao", "sevilla", "malaga", "málaga", "zaragoza",
-    "alicante", "granada", "murcia", "palma", "remote",
-    "worldwide", "anywhere",
+    "barcelona", "bcn",
+    "remote", "worldwide", "anywhere",
 ]
 
 

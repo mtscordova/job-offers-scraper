@@ -3,7 +3,7 @@ import time
 import requests
 from bs4 import BeautifulSoup
 from .base import JobOffer
-from config import KEYWORDS, HEADERS, REQUEST_DELAY, REQUEST_TIMEOUT
+from config import KEYWORDS, HEADERS, REQUEST_DELAY, REQUEST_TIMEOUT, MAX_PAGES
 
 BASE_URL = "https://relocate.me/search"
 JOB_URL_RE = re.compile(r"^/[^/]+/[^/]+/[^/]+/[^/]+-\d+$")
@@ -20,8 +20,7 @@ def scrape() -> list[JobOffer]:
     session = requests.Session()
     session.headers.update(HEADERS)
 
-    page = 1
-    while True:
+    for page in range(1, MAX_PAGES + 1):
         params = {"page": page} if page > 1 else {}
         resp = session.get(BASE_URL, params=params, timeout=REQUEST_TIMEOUT)
         if resp.status_code != 200:
@@ -61,10 +60,7 @@ def scrape() -> list[JobOffer]:
                 remote=False,
             ))
 
-        page += 1
         time.sleep(REQUEST_DELAY)
-
-        # Stop if we got fewer than expected (end of pagination)
         if len(job_links) < 15:
             break
 
