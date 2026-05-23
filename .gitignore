@@ -4,3 +4,4 @@ __pycache__/
 jobs.db
 .venv/
 .env
+linkedin_cache.json

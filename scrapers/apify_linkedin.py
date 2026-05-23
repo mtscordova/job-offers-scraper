@@ -1,10 +1,13 @@
+import json
+from pathlib import Path
 from urllib.parse import urlencode
 from apify_client import ApifyClient
 from .base import JobOffer
 from settings import settings
 
 ACTOR_ID = "curious_coder/linkedin-jobs-scraper"
-RESULTS_PER_KEYWORD = 50
+RESULTS_PER_KEYWORD = 1000
+CACHE_FILE = Path(__file__).parent.parent / "linkedin_cache.json"
 
 # geoId=105646813 → Spain | f_PP=105088894 → Barcelona pinpoint (from LinkedIn URL)
 # f_WT=2 → remote  |  f_TPR=r2592000 → last 30 days
@@ -32,7 +35,7 @@ def _build_urls() -> list[str]:
     return urls
 
 
-def scrape() -> list[JobOffer]:
+def _fetch_from_apify() -> list[dict]:
     token = settings.apify_token
     if not token:
         raise RuntimeError("APIFY_TOKEN not set in .env")
@@ -42,11 +45,15 @@ def scrape() -> list[JobOffer]:
         "urls": _build_urls(),
         "count": RESULTS_PER_KEYWORD,
     })
+    items = list(client.dataset(run.default_dataset_id).iterate_items())
+    CACHE_FILE.write_text(json.dumps(items, default=str), encoding="utf-8")
+    return items
 
+
+def _to_job_offers(items: list[dict]) -> list[JobOffer]:
     jobs = []
     seen_urls = set()
-
-    for item in client.dataset(run.default_dataset_id).iterate_items():
+    for item in items:
         url = item.get("link") or item.get("jobUrl") or item.get("url") or ""
         if not url or url in seen_urls:
             continue
@@ -74,5 +81,12 @@ def scrape() -> list[JobOffer]:
             remote=remote,
             posted_at=posted_at,
         ))
-
     return jobs
+
+
+def scrape() -> list[JobOffer]:
+    if CACHE_FILE.exists():
+        items = json.loads(CACHE_FILE.read_text(encoding="utf-8"))
+    else:
+        items = _fetch_from_apify()
+    return _to_job_offers(items)
