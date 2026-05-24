@@ -45,8 +45,7 @@ class Settings(BaseSettings):
         "lattice", "smarterdx",
     ]
     lever_companies: list[str] = [
-        "coursera", "duolingo", "asana", "amplitude", "mixpanel",
-        "reddit", "airtable", "remote", "hotjar", "workable", "personio",
+        "spotify",
     ]
 
     @computed_field
