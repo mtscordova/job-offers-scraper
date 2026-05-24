@@ -31,11 +31,18 @@ class Settings(BaseSettings):
 
     # Company boards
     greenhouse_companies: list[str] = [
+        # Original (verified working)
         "airbnb", "stripe", "twilio", "dbtlabs", "fivetran", "hashicorp",
         "gitlab", "elastic", "grafana", "mattermost",
-        "typeform", "king", "glovo", "cabify", "factorial", "travelperk",
-        "holaluz", "flywire", "paack", "clarity-ai",
+        "typeform", "cabify", "holaluz", "flywire", "paack", "clarity-ai",
         "zendesk", "hubspot", "brex", "plaid", "rippling", "notion",
+        # Data & infrastructure
+        "databricks", "clickhouse", "amplitude", "contentful", "commercetools",
+        # European / remote-friendly
+        "n26", "amenitiz", "xapo61", "nearform", "remotecom",
+        # US remote (high data eng volume)
+        "discord", "dropbox", "gusto", "robinhood", "lyft",
+        "lattice", "smarterdx",
     ]
     lever_companies: list[str] = [
         "coursera", "duolingo", "asana", "amplitude", "mixpanel",
