@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 from tabulate import tabulate
 import db
 from settings import settings
-from scrapers import jobfluent, relocate, landing_jobs, greenhouse, lever, spainjobs, apify_linkedin
+from scrapers import jobfluent, relocate, landing_jobs, greenhouse, lever, spainjobs, apify_linkedin, remotive
 
 SOURCES = {
     "jobfluent": jobfluent.scrape,
@@ -13,6 +13,7 @@ SOURCES = {
     "landing_jobs": landing_jobs.scrape,
     "greenhouse": greenhouse.scrape,
     "lever": lever.scrape,
+    "jobicy": remotive.scrape,
 }
 
 
